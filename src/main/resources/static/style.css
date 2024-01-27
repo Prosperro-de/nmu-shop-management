@@ -1,0 +1,33 @@
+.navbar-container {
+    display: flex; /* Enables flexbox */
+    justify-content: center; /* Centers items horizontally */
+    align-items: center; /* Centers items vertically */
+    background-color: #333; /* Background color of the navbar */
+    padding: 10px; /* Padding around the navbar */
+}
+
+.navbar-container ul {
+    list-style-type: none; /* Removes bullet points from the list */
+    display: flex; /* Enables flexbox for the list */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+    align-items: center; /* Aligns items vertically */
+}
+
+.navbar-container ul li {
+    margin: 0 10px; /* Adds margin to the left and right of each list item */
+}
+
+.navbar-container ul li button {
+    background-color: #008CBA; /* Background color of the buttons */
+    color: white; /* Text color of the buttons */
+    padding: 10px 15px; /* Padding inside the buttons */
+    border: none; /* Removes border */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+    border-radius: 5px; /* Rounded corners for the buttons */
+    transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.navbar-container ul li button:hover {
+    background-color: #005f73; /* Background color on hover */
+}
