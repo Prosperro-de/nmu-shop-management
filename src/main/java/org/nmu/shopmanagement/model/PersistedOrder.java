@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -50,12 +48,4 @@ public class PersistedOrder {
 
     @OneToMany(mappedBy = "persistedOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<PersistedOrderItem> persistedOrderItems;
-
-    public void addPersistedOrderItem(PersistedOrderItem item) {
-        if (this.persistedOrderItems == null) {
-            this.persistedOrderItems = new ArrayList<>();
-        }
-        item.setPersistedOrder(this);
-        this.persistedOrderItems.add(item);
-    }
 }
