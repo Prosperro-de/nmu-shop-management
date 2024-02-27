@@ -42,7 +42,6 @@ public class PersistedOrderItemServiceImpl implements PersistedOrderItemService 
         PersistedOrderItem oldPersistedOrderItem = persistedOrderItemRepository.findById(id).orElseThrow();
         oldPersistedOrderItem.setProduct(persistedOrder.getProduct());
         oldPersistedOrderItem.setQuantity(persistedOrder.getQuantity());
-        oldPersistedOrderItem.setPersistedOrder(persistedOrder.getPersistedOrder());
 
         return persistedOrderItemRepository.save(oldPersistedOrderItem);
     }

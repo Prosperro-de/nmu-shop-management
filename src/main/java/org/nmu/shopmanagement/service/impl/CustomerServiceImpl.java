@@ -3,54 +3,66 @@ package org.nmu.shopmanagement.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.nmu.shopmanagement.model.Customer;
+import org.nmu.shopmanagement.model.dto.request.CustomerRequestDto;
+import org.nmu.shopmanagement.model.dto.response.CustomerResponseDto;
 import org.nmu.shopmanagement.repository.CustomerRepository;
 import org.nmu.shopmanagement.service.CustomerService;
+import org.nmu.shopmanagement.service.mapper.RequestMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Data
 @AllArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
+    private RequestMapper requestMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public Customer getCustomer(Long id) {
-        return customerRepository.findById(id).orElseThrow();
+    public CustomerResponseDto getCustomer(Long id) {
+        return requestMapper.toCustomerResponseDto(customerRepository.findById(id).orElseThrow());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerResponseDto> getAllCustomers() {
+        return requestMapper.toCustomerResponseDtoList(customerRepository.findAll());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CustomerResponseDto> getAllCustomersWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return requestMapper.toCustomerResponseDtoList(customerRepository.findAll(pageable).getContent());
     }
 
     @Override
     @Transactional
-    public Customer createCustomer(Customer customer) {
-        return customerRepository.save(customer);
+    public CustomerResponseDto createCustomer(CustomerRequestDto customerRequestDto) {
+        return requestMapper.toCustomerResponseDto(customerRepository.save(requestMapper.toCustomer(customerRequestDto)));
     }
 
     @Override
     @Transactional
-    public Customer updateCustomer(Long id, Customer customer) {
+    public CustomerResponseDto updateCustomer(Long id, CustomerRequestDto request) {
         Customer oldCustomer = customerRepository.findById(id).orElseThrow();
-        oldCustomer.setName(customer.getName());
-        oldCustomer.setAddress(customer.getAddress());
-        oldCustomer.setCity(customer.getCity());
-        oldCustomer.setPostalCode(customer.getPostalCode());
-        oldCustomer.setCountry(customer.getCountry());
-        oldCustomer.setPhone(customer.getPhone());
-        return customerRepository.save(oldCustomer);
+        oldCustomer.setName(request.name());
+        oldCustomer.setAddress(request.address());
+        oldCustomer.setCity(request.city());
+        oldCustomer.setPostalCode(request.postalCode());
+        oldCustomer.setCountry(request.country());
+        oldCustomer.setPhone(request.phone());
+        return requestMapper.toCustomerResponseDto(customerRepository.save(oldCustomer));
     }
 
     @Override
     @Transactional
-    public void deleteCustomer(Customer customer) {
-        customerRepository.delete(customer);
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
     }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.nmu.shopmanagement.model.Customer;
 import org.nmu.shopmanagement.model.PersistedOrder;
 import org.nmu.shopmanagement.model.Product;
+import org.nmu.shopmanagement.model.dto.response.CustomerResponseDto;
 import org.nmu.shopmanagement.service.CustomerService;
 import org.nmu.shopmanagement.service.PersistedOrderService;
 import org.nmu.shopmanagement.service.ProductService;
@@ -30,7 +31,7 @@ public class MainController {
     }
 
     @GetMapping("/customers")
-    public List<Customer> getCustomers() {
+    public List<CustomerResponseDto> getCustomers() {
         return customerService.getAllCustomers();
     }
 

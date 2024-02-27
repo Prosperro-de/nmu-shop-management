@@ -6,14 +6,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.nmu.shopmanagement.model.Customer;
 import org.nmu.shopmanagement.model.PersistedOrder;
+import org.nmu.shopmanagement.model.PersistedOrderItem;
+import org.nmu.shopmanagement.model.dto.request.CreateOrderRequestDto;
+import org.nmu.shopmanagement.model.dto.request.UpdateOrderRequestDto;
+import org.nmu.shopmanagement.model.dto.response.OrderResponseDto;
+import org.nmu.shopmanagement.repository.CustomerRepository;
 import org.nmu.shopmanagement.repository.PersistedOrderRepository;
+import org.nmu.shopmanagement.repository.ProductRepository;
 import org.nmu.shopmanagement.service.PersistedOrderService;
+import org.nmu.shopmanagement.service.mapper.RequestMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -23,12 +31,21 @@ import java.util.List;
 public class PersistedOrderServiceImpl implements PersistedOrderService {
 
     private PersistedOrderRepository persistedOrderRepository;
+    private CustomerRepository customerRepository;
+    private ProductRepository productRepository;
     private ObjectMapper objectMapper;
+    private RequestMapper requestMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public PersistedOrder getPersistedOrder(Long id) {
-        return persistedOrderRepository.findById(id).orElseThrow();
+    public OrderResponseDto getPersistedOrder(Long id) {
+        return requestMapper.toOrderResponseDto(persistedOrderRepository.findById(id).orElseThrow());
+    }
+
+    @Override
+    public List<OrderResponseDto> getAllPersistedOrdersWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return requestMapper.toOrderResponseDtoList(persistedOrderRepository.findAll(pageable).getContent());
     }
 
     @Override
@@ -56,25 +73,40 @@ public class PersistedOrderServiceImpl implements PersistedOrderService {
 
     @Override
     @Transactional
-    public PersistedOrder createPersistedOrder(PersistedOrder persistedOrder) {
-        return persistedOrderRepository.save(persistedOrder);
+    public OrderResponseDto createPersistedOrder(CreateOrderRequestDto request) {
+        Customer customer = customerRepository.findById(request.customerId()).orElseThrow();
+        PersistedOrder persistedOrder = new PersistedOrder();
+        persistedOrder.setCustomer(customer);
+        persistedOrder.setOrderStatus("Created");
+        persistedOrder.setOrderedAt(LocalDate.now());
+        List<PersistedOrderItem> items = request.items().stream()
+                .map(requestItem -> {
+                    PersistedOrderItem persistedOrderItem = new PersistedOrderItem();
+                    persistedOrderItem.setProduct(productRepository.findById(requestItem.productId()).orElseThrow());
+                    persistedOrderItem.setQuantity(requestItem.quantity());
+                    persistedOrderItem.setPersistedOrder(persistedOrder);
+                    return persistedOrderItem;
+                })
+                .toList();
+        persistedOrder.setPersistedOrderItems(items);
+        return requestMapper.toOrderResponseDto(persistedOrderRepository.save(persistedOrder));
     }
 
     @Override
     @Transactional
-    public PersistedOrder updatePersistedOrder(Long id, PersistedOrder persistedOrder) {
+    public OrderResponseDto updatePersistedOrder(Long id, UpdateOrderRequestDto request) {
         PersistedOrder oldPersistedOrder = persistedOrderRepository.findById(id).orElseThrow();
-        oldPersistedOrder.setCustomer(persistedOrder.getCustomer());
-        oldPersistedOrder.setOrderStatus(persistedOrder.getOrderStatus());
-        oldPersistedOrder.setDeliveredAt(persistedOrder.getDeliveredAt());
-        oldPersistedOrder.setPersistedOrderItems(persistedOrder.getPersistedOrderItems());
-        return persistedOrderRepository.save(oldPersistedOrder);
+        oldPersistedOrder.setCustomer(request.customer());
+        oldPersistedOrder.setOrderStatus(request.orderStatus());
+        oldPersistedOrder.setDeliveredAt(request.deliveredAt());
+        oldPersistedOrder.setPersistedOrderItems(requestMapper.toPersistedOrderItemList(request.items()));
+        return requestMapper.toOrderResponseDto(persistedOrderRepository.save(oldPersistedOrder));
     }
 
     @Override
     @Transactional
-    public void deletePersistedOrder(PersistedOrder persistedOrder) {
-        persistedOrderRepository.delete(persistedOrder);
+    public void deletePersistedOrder(Long id) {
+        persistedOrderRepository.deleteById(id);
     }
 
     @Override
