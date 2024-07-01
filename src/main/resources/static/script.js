@@ -1,19 +1,19 @@
 document.getElementById('getAllOrders').addEventListener('click', function() {
-    fetch('http://java-http-demo.eu-central-1.elasticbeanstalk.com/orders')
+    fetch('http://localhost:8080/orders')
         .then(response => response.json())
         .then(data => displayOrders(data))
         .catch(error => console.error('Error:', error));
 });
 
 document.getElementById('getAllCustomers').addEventListener('click', function() {
-    fetch('http://java-http-demo.eu-central-1.elasticbeanstalk.com/customers')
+    fetch('http://localhost:8080/customers')
         .then(response => response.json())
         .then(data => displayCustomers(data))
         .catch(error => console.error('Error:', error));
 });
 
 document.getElementById('getAllProducts').addEventListener('click', function() {
-    fetch('http://java-http-demo.eu-central-1.elasticbeanstalk.com/products')
+    fetch('http://localhost:8080/products')
         .then(response => response.json())
         .then(data => displayProducts(data))
         .catch(error => console.error('Error:', error));
@@ -130,7 +130,7 @@ function fetchOrdersBetweenDates() {
     const endDate = document.getElementById('endDate').value;
 
     if (startDate && endDate) {
-        const url = `http://java-http-demo.eu-central-1.elasticbeanstalk.com/orders/between-dates?startDate=${startDate}&endDate=${endDate}`;
+        const url = `http://localhost:8080/orders/between-dates?startDate=${startDate}&endDate=${endDate}`;
         fetch(url)
             .then(response => response.json())
             .then(data => displayOrders(data)) // Assuming displayOrders function exists
@@ -141,7 +141,7 @@ function fetchOrdersBetweenDates() {
 }
 
 function showCustomerDropdown() {
-    fetch('http://java-http-demo.eu-central-1.elasticbeanstalk.com/customers')
+    fetch('http://localhost:8080/customers')
         .then(response => response.json())
         .then(customers => {
             let dropdownHtml = '<select id="customerSelect" class="m-2">';
@@ -163,7 +163,7 @@ function showCustomerDropdown() {
 
 
 function fetchOrdersForCustomer(customerId) {
-    const url = `http://java-http-demo.eu-central-1.elasticbeanstalk.com/orders/customer?id=${customerId}`;
+    const url = `http://localhost:8080/orders/customer?id=${customerId}`;
     fetch(url)
         .then(response => response.json())
         .then(data => displayOrders(data)) // Assuming displayOrders function exists
@@ -188,7 +188,7 @@ function fetchRevenueBetweenDates() {
     const endDate = document.getElementById('revenueEndDate').value;
 
     if (startDate && endDate) {
-        const url = `http://java-http-demo.eu-central-1.elasticbeanstalk.com/revenue/between-dates?startDate=${startDate}&endDate=${endDate}`;
+        const url = `http://localhost:8080/revenue/between-dates?startDate=${startDate}&endDate=${endDate}`;
         fetch(url)
             .then(response => response.json())
             .then(revenue => displayRevenue(startDate, endDate, revenue))
